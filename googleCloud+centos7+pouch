@@ -66,6 +66,4 @@ INFO[2017-11-25 08:31:29.807752434] start to listen to: unix:///var/run/pouchd.s
    # pouch images ls
    （运行结果）
    IMAGE ID             IMAGE NAME                                               SIZE
-   
-   # pouch images ls
-   # pouch images ls
+  

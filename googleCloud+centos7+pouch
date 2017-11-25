@@ -1,0 +1,71 @@
+Googlecloud+centos7+pouch配置
+1）# sudo passwd设置root密码 
+2）# yum install wget
+3）pouch只能在go1.9以上的环境运行，下载go并解压
+   # wget https://storage.googleapis.com/golang/go1.9.1.linux-amd64.tar.gz
+   # sudo tar -xzf go1.9.1.linux-amd64.tar.gz -C /usr/loca
+4）配置go的环境
+  # export GOROOT=/usr/local/go
+  # export GOBIN=$GOROOT/bin
+  # export PATH=$PATH:$GOBIN
+  # export GOPATH=$HOME/gopath
+  # source /etc/profile
+  可用go version查看是否安装成功
+5）安装containerd
+   # wget https://github.com/containerd/containerd/releases/download/v1.0.0-beta.3/containerd-1.0.0-beta.3.linux-amd64.tar.gz
+   # tar -xzvf containerd-1.0.0-beta.3.linux-amd64.tar.gz -C /usr/local
+6）安装runc
+   # wget https://github.com/opencontainers/runc/releases/download/v1.0.0-rc4/runc.amd64 -P /usr/local/bin
+   # chmod +x /usr/local/bin/runc.amd64
+   # mv /usr/local/bin/runc.amd64 /usr/local/bin/runc
+7）安装pouch
+   # mkdir -p $GOPATH/src/github.com/alibaba/ 
+   # cd $GOPATH/src/github.com/alibaba/; git clone https://github.com/alibaba/pouch.git
+   # cd pouch; git checkout master
+   # make install
+  
+  （运行结果）
+   GOOS=linux go build -o pouchd
+   go build -o pouch github.com/alibaba/pouch/cli
+   install
+   installing pouchd and pouch to /usr/local/bin
+   
+8）启动pouch
+   # pouchd
+   
+（运行结果）
+INFO[0000] starting containerd                           module=containerd revision=2b8ed96d2a422bf205adcdfa05272dc12c81613b version=v1.0.0-beta.3
+INFO[0000] setting subreaper...                          module=containerd
+INFO[0000] loading plugin "io.containerd.content.v1.content"...  module=containerd type=io.containerd.content.v1
+INFO[0000] loading plugin "io.containerd.snapshotter.v1.btrfs"...  module=containerd type=io.containerd.snapshotter.v1
+WARN[0000] failed to load plugin io.containerd.snapshotter.v1.btrfs  error="path /etc/pouchd/containerd/root/io.containerd.snapshotter.v1.btrfs must be a btrfs filesystem to be used with the btrfs snapshotter" module=containerd
+INFO[0000] loading plugin "io.containerd.snapshotter.v1.overlayfs"...  module=containerd type=io.containerd.snapshotter.v1
+INFO[0000] loading plugin "io.containerd.metadata.v1.bolt"...  module=containerd type=io.containerd.metadata.v1
+WARN[0000] could not use snapshotter btrfs in metadata plugin  error="path /etc/pouchd/containerd/root/io.containerd.snapshotter.v1.btrfs must be a btrfs filesystem to be used with the btrfs snapshotter" module="containerd/io.containerd.metadata.v1.bolt"
+INFO[0000] loading plugin "io.containerd.differ.v1.walking"...  module=containerd type=io.containerd.differ.v1
+INFO[0000] loading plugin "io.containerd.grpc.v1.containers"...  module=containerd type=io.containerd.grpc.v1
+INFO[0000] loading plugin "io.containerd.grpc.v1.content"...  module=containerd type=io.containerd.grpc.v1
+INFO[0000] loading plugin "io.containerd.grpc.v1.diff"...  module=containerd type=io.containerd.grpc.v1
+INFO[0000] loading plugin "io.containerd.grpc.v1.events"...  module=containerd type=io.containerd.grpc.v1
+INFO[0000] loading plugin "io.containerd.grpc.v1.healthcheck"...  module=containerd type=io.containerd.grpc.v1
+INFO[0000] loading plugin "io.containerd.grpc.v1.images"...  module=containerd type=io.containerd.grpc.v1
+INFO[0000] loading plugin "io.containerd.grpc.v1.leases"...  module=containerd type=io.containerd.grpc.v1
+INFO[0000] loading plugin "io.containerd.grpc.v1.namespaces"...  module=containerd type=io.containerd.grpc.v1
+INFO[0000] loading plugin "io.containerd.grpc.v1.snapshots"...  module=containerd type=io.containerd.grpc.v1
+INFO[0000] loading plugin "io.containerd.monitor.v1.cgroups"...  module=containerd type=io.containerd.monitor.v1
+INFO[0000] loading plugin "io.containerd.runtime.v1.linux"...  module=containerd type=io.containerd.runtime.v1
+INFO[0000] loading plugin "io.containerd.grpc.v1.tasks"...  module=containerd type=io.containerd.grpc.v1
+INFO[0000] loading plugin "io.containerd.grpc.v1.version"...  module=containerd type=io.containerd.grpc.v1
+INFO[0000] loading plugin "io.containerd.grpc.v1.introspection"...  module=containerd type=io.containerd.grpc.v1
+INFO[0000] serving...                                    address="/run/containerd/debug.sock" module="containerd/debug"
+INFO[0000] serving...                                    address="/var/run/containerd.sock" module="containerd/grpc"
+INFO[0000] containerd successfully booted in 0.002921s   module=containerd
+INFO[2017-11-25 08:31:29.805380777] success to create containerd's client, connect to: /var/run/containerd.sock 
+INFO[2017-11-25 08:31:29.807752434] start to listen to: unix:///var/run/pouchd.sock 
+9）另起一个terminal进行操作
+   # pouch images ls
+   （运行结果）
+   IMAGE ID             IMAGE NAME                                               SIZE
+   
+   # pouch images ls
+   # pouch images ls

@@ -3,7 +3,7 @@ Googlecloud+centos7+pouch配置
 2）# yum install wget
 3）pouch只能在go1.9以上的环境运行，下载go并解压
    # wget https://storage.googleapis.com/golang/go1.9.1.linux-amd64.tar.gz
-   # sudo tar -xzf go1.9.1.linux-amd64.tar.gz -C /usr/loca
+   # sudo tar -xzf go1.9.1.linux-amd64.tar.gz -C /usr/local
 4）配置go的环境
   # export GOROOT=/usr/local/go
   # export GOBIN=$GOROOT/bin

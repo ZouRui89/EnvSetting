@@ -1,0 +1,12 @@
+1.sign-off
+git config user.name "Zou Rui"
+git config user.email "21751189@zju.edu.cn"
+
+2.commit
+git commit -s -m "message"
+
+3.rebase 
+git rebase -i id(the one right before ur first commit)
+
+4.push
+git push origin master -f

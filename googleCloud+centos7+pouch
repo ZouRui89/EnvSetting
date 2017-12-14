@@ -72,6 +72,7 @@ INFO[0000] serving...                                    address="/var/run/conta
 INFO[0000] containerd successfully booted in 0.002921s   module=containerd
 INFO[2017-11-25 08:31:29.805380777] success to create containerd's client, connect to: /var/run/containerd.sock 
 INFO[2017-11-25 08:31:29.807752434] start to listen to: unix:///var/run/pouchd.sock 
+
 9）另起一个terminal进行操作
    # pouch images ls
    （运行结果）

@@ -1,0 +1,24 @@
+(以alibaba/pouch为例）
+
+1. fork 
+
+2.从自己的远程仓库clone到本地
+git clone https://github.com/ZouRui89/pouch.git
+
+3.添加源仓库路径并设置
+git remote add upstream https://github.com/alibaba/pouch.git;
+git remote set-url --push upstream no-pushing
+
+4.validation
+git remote -v
+origin     https://github.com/ZouRui89/pouch.git (fetch)
+origin     https://github.com/ZouRui89/pouch.git (push)
+upstream   https://github.com/alibaba/pouch.git (fetch)
+upstream   no-pushing (push)
+
+5.获取源仓库的最新commit,本地仓库与源仓库同步
+git fetch upstream;
+git merge upstream/master
+
+6.同步本地仓库与远程仓库
+git push 

@@ -1,4 +1,4 @@
-Googlecloud+centos7+pouch配置
+GCE+centos7+pouch配置
 1）# sudo passwd设置root密码 
 
 2）# yum install wget

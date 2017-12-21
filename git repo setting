@@ -21,4 +21,10 @@ git fetch upstream;
 git merge upstream/master
 
 6.同步本地仓库与远程仓库
-git push 
+git push
+
+7.创建新的分支
+git branch newBranch
+git branch -d newBranch
+git push origin newBranch:newBranch
+git push origin :newBranch 

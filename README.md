@@ -1,2 +1,2 @@
 # EnvSetting
-tutorials on how to conduct environment setting
+Simple scripts about deploying environment.(container related) :)

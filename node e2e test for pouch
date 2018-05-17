@@ -1,0 +1,35 @@
+# Ubuntu TLS 16.0.4 supported.
+
+# pre 
+yum install wget -y
+yum install git -y
+
+#install go
+  wget https://storage.googleapis.com/golang/go1.9.1.linux-amd64.tar.gz
+  sudo tar -xzf go1.9.1.linux-amd64.tar.gz -C /usr/local
+  vim /etc/profile
+  
+    export GOROOT=/usr/local/go
+    export GOBIN=$GOROOT/bin
+    export PATH=$PATH:$GOBIN
+    export GOPATH=$HOME/gopath
+  
+  source /etc/profile
+
+#install etcd 
+wget https://github.com/coreos/etcd/releases/download/v3.3.5/etcd-v3.3.5-linux-amd64.tar.gz
+tar -xzvf etcd-v3.3.5-linux-amd64.tar.gz -C /usr/local
+export PATH=$PATH:/usr/local/etcd-v3.3.5-linux-amd64
+
+# install ginkgo
+    export GOROOT=/usr/local/go
+    export GOPATH=$HOME/gopath
+    export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+    export PATH=$PATH:/usr/local/bin
+    go get -u github.com/onsi/ginkgo/ginkgo
+    
+# clone kubernetes and run test
+git clone https://github.com/kubernetes/kubernetes
+cd kubernetes
+git checkout v1.9.4
+make test-e2e-node RUNTIME=remote CONTAINER_RUNTIME_ENDPOINT=unix:///var/run/pouchcri.sock

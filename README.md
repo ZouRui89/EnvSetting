@@ -1,2 +1,2 @@
 # EnvSetting
-Simple scripts about deploying environment.(container related) :)
+Simple scripts about deploying environment(container related) :)

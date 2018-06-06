@@ -1,0 +1,50 @@
+# Deploy flannal with kubernetes on Centos
+
+# turn off the firewall
+systemctl disable firewalld && systemctl stop firewalld
+
+# install crictl
+go get github.com/kubernetes-incubator/cri-tools/cmd/crictl
+
+# install docker && start docker
+yum install -y docker 
+systemctl enable docker && systemctl start docker
+
+# install kubernetes(kubeadm, kubelet and kubectl) && start 
+cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+EOF
+
+# Disabling SELinux
+setenforce 0
+
+yum install -y kubelet kubeadm kubectl
+systemctl enable kubelet && systemctl start kubelet
+
+# ensure iptables 
+cat <<EOF >  /usr/lib/sysctl.d/00-system.conf
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+
+sysctl --system
+
+# check cgroups
+docker info | grep -i cgroup
+cat /etc/systemd/system/kubelet.service.d/10-kubeadm.conf | grep -i cgroup
+
+# restart to validate changes
+systemctl daemon-reload
+systemctl restart kubelet
+
+# init 
+kubeadm init --pod-network-cidr=10.244.0.0/16
+
+# flannal
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/v0.10.0/Documentation/kube-flannel.yml

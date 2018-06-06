@@ -46,5 +46,9 @@ systemctl restart kubelet
 # init 
 kubeadm init --pod-network-cidr=10.244.0.0/16
 
+# enable master node being scheduled
+export KUBECONFIG=/etc/kubernetes/admin.conf
+kubectl taint nodes --all node-role.kubernetes.io/master:NoSchedule-
+
 # flannal
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/v0.10.0/Documentation/kube-flannel.yml

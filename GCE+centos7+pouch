@@ -8,13 +8,15 @@ GCE+centos7+pouch配置
    # sudo tar -xzf go1.9.1.linux-amd64.tar.gz -C /usr/local
    
 4）配置go的环境
-  # vim /etc/profile
+ /* # vim /etc/profile
   
   export GOROOT=/usr/local/go
   export GOBIN=$GOROOT/bin
   export PATH=$PATH:$GOBIN
   export GOPATH=$HOME/gopath
-  
+ */
+ 
+  # sed -i '11i\export GOROOT=/usr/local/go\nexport GOBIN=$GOROOT/bin\nexport PATH=$PATH:$GOBIN\nexport GOPATH=$HOME/gopath\n' /etc/profile
   # source /etc/profile
   
   可用go version查看是否安装成功

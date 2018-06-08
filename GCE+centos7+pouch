@@ -2,6 +2,8 @@ GCE+centos7+pouch配置
 1）# sudo passwd设置root密码 
 
 2）# yum install wget -y
+  # yum install git -y
+  # yum install gcc -y
 
 3）pouch只能在go1.9以上的环境运行，下载go并解压
    # wget https://storage.googleapis.com/golang/go1.9.1.linux-amd64.tar.gz

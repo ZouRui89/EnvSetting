@@ -1,0 +1,42 @@
+#!bin/sh
+
+# check the validation of commands
+_=$(command -v docker);
+if [ "$?" != "0" ]; then
+  printf -- 'You do not seem to have Docker installed.\n';
+  printf -- 'Get it: https://www.docker.com/community-edition\n';
+  printf -- 'Exiting with code 127...\n';
+  exit 127;
+fi;
+
+# show the process with animation
+# for more related info, refer to  http://mywiki.wooledge.org/BashFAQ/034
+printf -- 'Performing asynchronous action..';
+./trigger-action;
+DONE=0;
+while [ $DONE -eq 0 ]; do
+  ./async-checker;
+  if [ "$?" = "0" ]; then DONE=1; fi;
+  printf -- '.';
+  sleep 1;
+done;
+printf -- ' DONE!\n';
+
+# customize output with specific colors
+# for more related info, refer to https://misc.flogisoft.com/bash/tip_colors_and_formatting
+printf -- 'doing something... \n';
+printf -- '\033[37m someone elses output \033[0m\n';
+printf -- '\033[32m SUCCESS: yay \033[0m\n';
+printf -- '\033[33m WARNING: hmm \033[0m\n';
+printf -- '\033[31m ERROR: fubar \033[0m\n';
+
+# choose specific exit code
+if [ "$?" != "0" ]; then
+  printf -- 'X happened. Exiting with status code 1.\n';
+  exit 1;
+fi;
+# ...
+if [ "$?" != "0" ]; then
+  printf -- 'Y happened. Exiting with status code 2.\n';
+  exit 2;
+fi;

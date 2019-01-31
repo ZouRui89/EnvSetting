@@ -1,0 +1,32 @@
+# service cgconfig start   #开启cgroups服务
+# chkconfig cgconfig on   #开启启动
+
+1. test cpu control
+# a shell script costing high cpu
+x=0
+while [ True ];do
+    x=$x+1
+done;
+
+# mkdir -p /cgroup/cpu/foo/   #新建一个控制组foo
+# echo 50000 > /cgroup/cpu/foo/cpu.cfs_quota_us  #将cpu.cfs_quota_us设为50000，相对于cpu.cfs_period_us的100000是50%
+# echo $pid > /cgroup/cpu/foo/tasks
+
+2. test memory control
+# a shell script costing high memory
+x="a"
+while [ True ];do
+    x=$x$x
+done;
+
+# mkdir -p /cgroup/memory/foo
+# echo 1048576 >  /cgroup/memory/foo/memory.limit_in_bytes   #分配1MB的内存给这个控制组
+# echo $pid > /cgroup/memory/foo/tasks 
+
+3. test blkio control
+# dd if=/dev/sda of=/dev/null &
+# mkdir -p /cgroup/blkio/foo
+
+# echo '8:0   1048576' >  /cgroup/blkio/foo/blkio.throttle.read_bps_device
+#8:0对应主设备号和副设备号，可以通过ls -l /dev/sda查看
+# echo $pid > /cgroup/blkio/foo/tasks

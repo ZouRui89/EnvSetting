@@ -3,9 +3,6 @@
 # turn off the firewall
 systemctl disable firewalld && systemctl stop firewalld
 
-# install crictl
-go get github.com/kubernetes-incubator/cri-tools/cmd/crictl
-
 # install docker && start docker
 yum install -y docker 
 systemctl enable docker && systemctl start docker

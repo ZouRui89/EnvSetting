@@ -35,6 +35,8 @@ EOF
 
 sysctl --system
 
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
 # check cgroups
 docker info | grep -i cgroup
 cat /etc/systemd/system/kubelet.service.d/10-kubeadm.conf | grep -i cgroup

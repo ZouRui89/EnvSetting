@@ -13,10 +13,10 @@ GCE+centos7+pouch配置
   export GOROOT=/usr/local/go
   export GOBIN=$GOROOT/bin
   export PATH=$PATH:$GOBIN
-  export GOPATH=$HOME/gopath
+  export GOPATH=/home/gopath
  */
  
-  # sed -i '11i\export GOROOT=/usr/local/go\nexport GOBIN=$GOROOT/bin\nexport PATH=$PATH:$GOBIN\nexport GOPATH=$HOME/gopath\n' /etc/profile
+  # sed -i '11i\export GOROOT=/usr/local/go\nexport GOBIN=$GOROOT/bin\nexport PATH=$PATH:$GOBIN\nexport GOPATH=/home/gopath\n' /etc/profile
   # source /etc/profile
   
   可用go version查看是否安装成功

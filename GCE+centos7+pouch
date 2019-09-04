@@ -6,8 +6,8 @@ GCE+centos7+pouch配置
   # yum install gcc -y
 
 3）pouch只能在go1.9以上的环境运行，下载go并解压
-   # wget https://storage.googleapis.com/golang/go1.12.linux-amd64.tar.gz
-   # sudo tar -xzf go1.12.linux-amd64.tar.gz -C /usr/local
+   # wget https://storage.googleapis.com/golang/go1.12.7.linux-amd64.tar.gz
+   # sudo tar -xzf go1.12.7.linux-amd64.tar.gz -C /usr/local
    
 4）配置go的环境
  /* # vim /etc/profile

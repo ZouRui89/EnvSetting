@@ -126,7 +126,7 @@ cat > kubernetes-csr.json << EOF
    "CN": "kubernetes",
     "hosts": [
       "127.0.0.1",
-      "\```ip\``` ",
+      "10.128.0.21",
       "10.254.0.1",
       "kubernetes",
       "kubernetes.default",
@@ -149,5 +149,9 @@ cat > kubernetes-csr.json << EOF
     ]
 }
 ```
+```
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes kubernetes-csr.json | cfssljson -bare kubernetes
+```
+
 
 

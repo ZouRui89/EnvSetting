@@ -62,7 +62,35 @@ export PATH=/usr/local/bin:$PATH
 ```
 
 # use cfssl to generate CA
+## ca
+ca-config.json：可以定义多个 profiles，分别指定不同的过期时间、使用场景等参数；后续在签名证书时使用某个 profile；   
+signing：表示该证书可用于签名其它证书；生成的 ca.pem 证书中 CA=TRUE；   
+server auth：表示 client 可以用该 CA 对 server 提供的证书进行验证；   
+client auth：表示 server 可以用该 CA 对 client 提供的证书进行验证；  
+
 ```
+mkdir /root/ssl
+cd /root/ssl
+cat > ca-config.json << EOF
+{
+  "signing": {
+    "default": {
+      "expiry": "8760h"
+    },
+    "profiles": {
+      "kubernetes": {
+        "usages": [
+            "signing",
+            "key encipherment",
+            "server auth",
+            "client auth"
+        ],
+        "expiry": "8760h"
+      }
+    }
+  }
+}
+EOF
 ```
 
 

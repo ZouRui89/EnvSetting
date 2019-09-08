@@ -485,3 +485,209 @@ systemctl enable kube-apiserver
 systemctl start kube-apiserver
 systemctl status kube-apiserver
 ```
+## kube-controller-manager
+```
+cat > kube-controller-manager.service << EOF
+[Unit]
+Description=Kubernetes Controller Manager
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+
+[Service]
+ExecStart=/usr/local/bin/kube-controller-manager \\
+  --logtostderr=true  \\
+  --address=127.0.0.1 \\
+  --master=http://10.128.0.21:8080 \\
+  --allocate-node-cidrs=true \\
+  --service-cluster-ip-range=10.254.0.0/16 \\
+  --cluster-cidr=172.30.0.0/16 \\
+  --cluster-name=kubernetes \\
+  --cluster-signing-cert-file=/etc/kubernetes/ssl/ca.pem \\
+  --cluster-signing-key-file=/etc/kubernetes/ssl/ca-key.pem \\
+  --service-account-private-key-file=/etc/kubernetes/ssl/ca-key.pem \\
+  --root-ca-file=/etc/kubernetes/ssl/ca.pem \\
+  --leader-elect=true \\
+  --v=2
+Restart=on-failure
+LimitNOFILE=65536
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+```
+cp kube-controller-manager.service /etc/systemd/system/
+
+systemctl daemon-reload
+systemctl enable kube-controller-manager
+systemctl start kube-controller-manager
+```
+
+## kube-scheduler
+```
+cat > kube-scheduler.service << EOF
+[Unit]
+Description=Kubernetes Scheduler
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+
+[Service]
+ExecStart=/usr/local/bin/kube-scheduler \\
+  --logtostderr=true \\
+  --address=127.0.0.1 \\
+  --master=http://10.128.0.21:8080 \\
+  --leader-elect=true \\
+  --v=2
+Restart=on-failure
+LimitNOFILE=65536
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+```
+cp kube-scheduler.service /etc/systemd/system/
+
+systemctl daemon-reload
+systemctl enable kube-scheduler
+systemctl start kube-scheduler
+```
+```
+kubectl get componentstatuses
+kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap
+```
+
+# setup node
+## install docker
+```
+wget https://download.docker.com/linux/static/stable/x86_64/docker-17.12.0-ce.tgz
+tar -xvf docker-17.12.0-ce.tgz
+cp docker/docker* /usr/local/bin
+
+cat > docker.service << EOF
+[Unit]
+Description=Docker Application Container Engine
+Documentation=http://docs.docker.io
+
+[Service]
+Environment="PATH=/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin"
+EnvironmentFile=-/run/flannel/subnet.env
+EnvironmentFile=-/run/flannel/docker
+ExecStart=/usr/local/bin/dockerd \\
+  --exec-opt native.cgroupdriver=cgroupfs \\
+  --log-level=error \\
+  --log-driver=json-file \\
+  --storage-driver=overlay \\
+  \$DOCKER_NETWORK_OPTIONS
+ExecReload=/bin/kill -s HUP \$MAINPID
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+Delegate=yes
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+cp docker.service /etc/systemd/system/docker.service
+
+systemctl daemon-reload
+systemctl enable docker
+systemctl start docker
+systemctl status docker
+```
+
+## kube-proxy && kubelet
+```
+wget https://dl.k8s.io/v1.12.4/kubernetes-server-linux-amd64.tar.gz
+tar -xzvf kubernetes-server-linux-amd64.tar.gz
+cp -r kubernetes/server/bin/{kube-proxy,kubelet} /usr/local/bin/
+```
+```
+sudo mkdir /var/lib/kubelet
+
+cat > kubelet.service << EOF
+[Unit]
+Description=Kubernetes Kubelet
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=docker.service
+Requires=docker.service
+
+[Service]
+WorkingDirectory=/var/lib/kubelet
+ExecStart=/usr/local/bin/kubelet \\
+  --address=10.128.0.21 \\
+  --hostname-override=10.128.0.21 \\
+  --pod-infra-container-image=registry.access.redhat.com/rhel7/pod-infrastructure:latest \\
+  --experimental-bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig \\
+  --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \\
+  --require-kubeconfig \\
+  --cert-dir=/etc/kubernetes/ssl \\
+  --container-runtime=docker \\
+  --cluster-dns=10.254.0.2 \\
+  --cluster-domain=cluster.local \\
+  --hairpin-mode promiscuous-bridge \\
+  --allow-privileged=true \\
+  --serialize-image-pulls=false \\
+  --register-node=true \\
+  --logtostderr=true \\
+  --cgroup-driver=cgroupfs  \\
+  --v=2
+
+Restart=on-failure
+KillMode=process
+LimitNOFILE=65536
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+```
+cp kubelet.service /etc/systemd/system/kubelet.service
+
+systemctl daemon-reload
+systemctl enable kubelet
+systemctl start kubelet
+systemctl status kubelet
+```
+
+```
+sudo mkdir -p /var/lib/kube-proxy
+```
+
+```
+cat > kube-proxy.service << EOF
+[Unit]
+Description=Kubernetes Kube-Proxy Server
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=network.target
+
+[Service]
+WorkingDirectory=/var/lib/kube-proxy
+ExecStart=/usr/local/bin/kube-proxy \\
+  --bind-address=10.128.0.21 \\
+  --hostname-override=10.128.0.21 \\
+  --cluster-cidr=10.254.0.0/16 \\
+  --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig \\
+  --logtostderr=true \\
+  --v=2
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+```
+cp kube-proxy.service /etc/systemd/system/
+
+systemctl daemon-reload
+systemctl enable kube-proxy
+systemctl start kube-proxy
+systemctl status kube-proxy
+```

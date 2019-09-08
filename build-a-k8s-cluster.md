@@ -126,7 +126,7 @@ cat > kubernetes-csr.json << EOF
    "CN": "kubernetes",
     "hosts": [
       "127.0.0.1",
-      "```ip``` ",
+      "\```ip\``` ",
       "10.254.0.1",
       "kubernetes",
       "kubernetes.default",

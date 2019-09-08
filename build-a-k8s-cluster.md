@@ -208,7 +208,7 @@ mkdir -p /etc/kubernetes/ssl
 cp *.pem /etc/kubernetes/ssl
 ```
 
-## install etcd
+# install etcd
 ```
 wget https://github.com/coreos/etcd/releases/download/v3.2.12/etcd-v3.2.12-linux-amd64.tar.gz
 tar -xvf etcd-v3.2.12-linux-amd64.tar.gz
@@ -268,7 +268,7 @@ etcdctl \
    cluster-health
 ```
 
-## install flannel
+# install flannel
 ```
 wget https://github.com/coreos/flannel/releases/download/v0.9.1/flannel-v0.9.1-linux-amd64.tar.gz
 mkdir flannel
@@ -325,3 +325,163 @@ sudo systemctl start flanneld
 systemctl status flanneld
 ```
 
+# get kubectl
+```
+wget https://dl.k8s.io/v1.12.4/kubernetes-client-linux-amd64.tar.gz
+tar -xzvf kubernetes-client-linux-amd64.tar.gz
+
+sudo cp kubernetes/client/bin/kube* /usr/local/bin/
+chmod a+x /usr/local/bin/kube*
+export PATH=/root/local/bin:$PATH
+```
+
+# setup config
+```
+# 设置集群参数,--server指定Master节点ip
+kubectl config set-cluster kubernetes \
+  --certificate-authority=/etc/kubernetes/ssl/ca.pem \
+  --embed-certs=true \
+  --server=https://10.128.0.21:6443
+
+# 设置客户端认证参数
+kubectl config set-credentials admin \
+  --client-certificate=/etc/kubernetes/ssl/admin.pem \
+  --embed-certs=true \
+  --client-key=/etc/kubernetes/ssl/admin-key.pem
+
+# 设置上下文参数
+kubectl config set-context kubernetes \
+  --cluster=kubernetes \
+  --user=admin
+
+# 设置默认上下文
+kubectl config use-context kubernetes
+```
+
+## create bootstrap.kubeconfig 
+kubelet访问kube-apiserver的时候是通过bootstrap.kubeconfig进行用户验证。  
+```
+#生成token 变量
+export BOOTSTRAP_TOKEN=$(head -c 16 /dev/urandom | od -An -t x | tr -d ' ')
+
+cat > token.csv <<EOF
+${BOOTSTRAP_TOKEN},kubelet-bootstrap,10001,"system:kubelet-bootstrap"
+EOF
+
+mv token.csv /etc/kubernetes/
+
+# 设置集群参数--server为master节点ip
+kubectl config set-cluster kubernetes \
+  --certificate-authority=/etc/kubernetes/ssl/ca.pem \
+  --embed-certs=true \
+  --server=https://10.128.0.21:6443 \
+  --kubeconfig=bootstrap.kubeconfig
+
+# 设置客户端认证参数
+kubectl config set-credentials kubelet-bootstrap \
+  --token=${BOOTSTRAP_TOKEN} \
+  --kubeconfig=bootstrap.kubeconfig
+
+# 设置上下文参数
+kubectl config set-context default \
+  --cluster=kubernetes \
+  --user=kubelet-bootstrap \
+  --kubeconfig=bootstrap.kubeconfig
+
+# 设置默认上下文
+kubectl config use-context default --kubeconfig=bootstrap.kubeconfig
+
+mv bootstrap.kubeconfig /etc/kubernetes/
+```
+
+## create kube-proxy.kubeconfig
+```
+# 设置集群参数 --server参数为master ip
+kubectl config set-cluster kubernetes \
+  --certificate-authority=/etc/kubernetes/ssl/ca.pem \
+  --embed-certs=true \
+  --server=https://10.128.0.21:6443 \
+  --kubeconfig=kube-proxy.kubeconfig
+
+# 设置客户端认证参数
+kubectl config set-credentials kube-proxy \
+  --client-certificate=/etc/kubernetes/ssl/kube-proxy.pem \
+  --client-key=/etc/kubernetes/ssl/kube-proxy-key.pem \
+  --embed-certs=true \
+  --kubeconfig=kube-proxy.kubeconfig
+
+# 设置上下文参数
+kubectl config set-context default \
+  --cluster=kubernetes \
+  --user=kube-proxy \
+  --kubeconfig=kube-proxy.kubeconfig
+
+# 设置默认上下文
+kubectl config use-context default --kubeconfig=kube-proxy.kubeconfig
+mv kube-proxy.kubeconfig /etc/kubernetes/
+```
+
+# setup master
+```
+wget https://dl.k8s.io/v1.12.4/kubernetes-server-linux-amd64.tar.gz
+tar -xzvf kubernetes-server-linux-amd64.tar.gz
+cp -r kubernetes/server/bin/{kube-apiserver,kube-controller-manager,kube-scheduler,kubectl,kube-proxy,kubelet} /usr/local/bin/
+```
+
+## kube-apiserver
+```
+cat > kube-apiserver.service << EOF
+[Unit]
+Description=Kubernetes API Server
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=network.target
+After=etcd.service
+
+[Service]
+ExecStart=/usr/local/bin/kube-apiserver \\
+  --logtostderr=true \\
+  --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota,NodeRestriction \\
+  --advertise-address=10.128.0.21 \\
+  --bind-address=10.128.0.21 \\
+  --insecure-bind-address=127.0.0.1 \\
+  --authorization-mode=Node,RBAC \\
+  --runtime-config=rbac.authorization.k8s.io/v1alpha1 \\
+  --kubelet-https=true \\
+  --enable-bootstrap-token-auth \\
+  --token-auth-file=/etc/kubernetes/token.csv \\
+  --service-cluster-ip-range=10.254.0.0/16 \\
+  --service-node-port-range=8400-10000 \\
+  --tls-cert-file=/etc/kubernetes/ssl/kubernetes.pem \\
+  --tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem \\
+  --client-ca-file=/etc/kubernetes/ssl/ca.pem \\
+  --service-account-key-file=/etc/kubernetes/ssl/ca-key.pem \\
+  --etcd-cafile=/etc/kubernetes/ssl/ca.pem \\
+  --etcd-certfile=/etc/kubernetes/ssl/kubernetes.pem \\
+  --etcd-keyfile=/etc/kubernetes/ssl/kubernetes-key.pem \\
+  --etcd-servers=https://10.128.0.21:2379 \\
+  --enable-swagger-ui=true \\
+  --allow-privileged=true \\
+  --apiserver-count=3 \\
+  --audit-log-maxage=30 \\
+  --audit-log-maxbackup=3 \\
+  --audit-log-maxsize=100 \\
+  --audit-log-path=/var/lib/audit.log \\
+  --event-ttl=1h \\
+  --v=2
+Restart=on-failure
+RestartSec=5
+Type=notify
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+```
+cp kube-apiserver.service /etc/systemd/system/
+
+systemctl daemon-reload
+systemctl enable kube-apiserver
+systemctl start kube-apiserver
+systemctl status kube-apiserver
+```

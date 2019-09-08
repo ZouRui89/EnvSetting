@@ -1,17 +1,13 @@
 # setup go env
 ```
-    1  yum install wget git gcc -y
-    yum install -y epel-release
-    yum install -y yum-utils device-mapper-persistent-data lvm2 net-tools conntrack-tools wget
-    2  wget https://storage.googleapis.com/golang/go1.12.7.linux-amd64.tar.gz
-    3  sudo tar -xzf go1.12.7.linux-amd64.tar.gz -C /usr/local
-    4    # sed -i '11i\export GOROOT=/usr/local/go\nexport GOBIN=$GOROOT/bin\nexport PATH=$PATH:$GOBIN\nexport GOPATH=/home/gopath\n' /etc/profile
-    5  sed -i '11i\export GOROOT=/usr/local/go\nexport GOBIN=$GOROOT/bin\nexport PATH=$PATH:$GOBIN\nexport GOPATH=/home/gopath\n' /etc/profile
-    6  source /etc/profile
-    7  go version
-    
- [root@instance-1 aprilandchoco]# go version
-go version go1.12.7 linux/amd64
+yum install wget git gcc -y
+yum install -y epel-release
+yum install -y yum-utils device-mapper-persistent-data lvm2 net-tools conntrack-tools wget
+wget https://storage.googleapis.com/golang/go1.12.7.linux-amd64.tar.gz
+tar -xzf go1.12.7.linux-amd64.tar.gz -C /usr/local
+sed -i '11i\export GOROOT=/usr/local/go\nexport GOBIN=$GOROOT/bin\nexport PATH=$PATH:$GOBIN\nexport GOPATH=/home/gopath\n' /etc/profile
+source /etc/profile
+go version
 ```
 
 # make sure network is available

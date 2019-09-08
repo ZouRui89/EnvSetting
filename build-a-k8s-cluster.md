@@ -124,7 +124,7 @@ cfssl gencert -initca ca-csr.json | cfssljson -bare ca
 cat > kubernetes-csr.json << EOF
 {
    "CN": "kubernetes",
-    "hosts": [
+   "hosts": [
       "127.0.0.1",
       "10.128.0.21",
       "10.254.0.1",
@@ -134,11 +134,11 @@ cat > kubernetes-csr.json << EOF
       "kubernetes.default.svc.cluster",
       "kubernetes.default.svc.cluster.local"
     ],
-    "key": {
+   "key": {
         "algo": "rsa",
         "size": 2048
     },
-    "names": [
+   "names": [
         {
             "C": "CN",
             "ST": "BeiJing",
@@ -148,10 +148,68 @@ cat > kubernetes-csr.json << EOF
         }
     ]
 }
+EOF
 ```
 ```
 cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes kubernetes-csr.json | cfssljson -bare kubernetes
 ```
 
+### admin
+```
+cat > admin-csr.json << EOF
+{
+  "CN": "admin",
+  "hosts": [],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "BeiJing",
+      "L": "BeiJing",
+      "O": "system:masters",
+      "OU": "System"
+    }
+  ]
+}
+EOF
+```
+```
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes admin-csr.json | cfssljson -bare admin
+```
+
+### kube-proxy
+```
+cat > kube-proxy-csr.json << EOF
+{
+  "CN": "system:kube-proxy",
+  "hosts": [],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "BeiJing",
+      "L": "BeiJing",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}
+EOF
+```
+```
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes  kube-proxy-csr.json | cfssljson -bare kube-proxy
+```
+
+### distribute CA
+```
+mkdir -p /etc/kubernetes/ssl
+cp *.pem /etc/kubernetes/ssl
+```
 
 

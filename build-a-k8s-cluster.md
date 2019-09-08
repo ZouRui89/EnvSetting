@@ -93,4 +93,61 @@ cat > ca-config.json << EOF
 EOF
 ```
 
+“CN”：Common Name，kube-apiserver 从证书中提取该字段作为请求的用户名 (User Name)；浏览器使用该字段验证网站是否合法；   
+“O”：Organization，kube-apiserver 从证书中提取该字段作为请求用户所属的组 (Group)；  
+```
+cat > ca-csr.json << EOF
+{
+  "CN": "kubernetes",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "BeiJing",
+      "L": "BeiJing",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}
+EOF
+```
+```
+cfssl gencert -initca ca-csr.json | cfssljson -bare ca
+```
+
+### kubernetes
+```
+cat > kubernetes-csr.json << EOF
+{
+   "CN": "kubernetes",
+    "hosts": [
+      "127.0.0.1",
+      "```ip``` ",
+      "10.254.0.1",
+      "kubernetes",
+      "kubernetes.default",
+      "kubernetes.default.svc",
+      "kubernetes.default.svc.cluster",
+      "kubernetes.default.svc.cluster.local"
+    ],
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "CN",
+            "ST": "BeiJing",
+            "L": "BeiJing",
+            "O": "k8s",
+            "OU": "System"
+        }
+    ]
+}
+```
+
 

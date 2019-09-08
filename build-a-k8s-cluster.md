@@ -44,7 +44,7 @@ echo 1 > /proc/sys/net/ipv4/ip_forward
 systemctl daemon-reload
 ```
 # CA
-# install cfssl 
+## install cfssl 
 ```
 wget https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
 chmod +x cfssl_linux-amd64
@@ -61,8 +61,8 @@ sudo mv cfssl-certinfo_linux-amd64 /usr/local/bin/cfssl-certinfo
 export PATH=/usr/local/bin:$PATH
 ```
 
-# use cfssl to generate CA
-## ca
+## use cfssl to generate CA
+### ca
 ca-config.json：可以定义多个 profiles，分别指定不同的过期时间、使用场景等参数；后续在签名证书时使用某个 profile；   
 signing：表示该证书可用于签名其它证书；生成的 ca.pem 证书中 CA=TRUE；   
 server auth：表示 client 可以用该 CA 对 server 提供的证书进行验证；   

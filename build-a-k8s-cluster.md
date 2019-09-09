@@ -624,7 +624,6 @@ ExecStart=/usr/local/bin/kubelet \\
   --pod-infra-container-image=registry.access.redhat.com/rhel7/pod-infrastructure:latest \\
   --experimental-bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig \\
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \\
-  --require-kubeconfig \\
   --cert-dir=/etc/kubernetes/ssl \\
   --container-runtime=docker \\
   --cluster-dns=10.254.0.2 \\
@@ -653,6 +652,16 @@ systemctl daemon-reload
 systemctl enable kubelet
 systemctl start kubelet
 systemctl status kubelet
+```
+```
+[root@instance-1 aprilandchoco]# kubectl get csr
+NAME                                                   AGE   REQUESTOR           CONDITION
+node-csr-Z2BO4sfU7zUgLq6rXFcbA3mrWyrFoF8EWGEV_rroa8U   32s   kubelet-bootstrap   Pending
+[root@instance-1 aprilandchoco]# kubectl certificate approve node-csr-Z2BO4sfU7zUgLq6rXFcbA3mrWyrFoF8EWGEV_rroa8U
+certificatesigningrequest.certificates.k8s.io/node-csr-Z2BO4sfU7zUgLq6rXFcbA3mrWyrFoF8EWGEV_rroa8U approved
+[root@instance-1 aprilandchoco]# kubectl get csr
+NAME                                                   AGE   REQUESTOR           CONDITION
+node-csr-Z2BO4sfU7zUgLq6rXFcbA3mrWyrFoF8EWGEV_rroa8U   67s   kubelet-bootstrap   Approved
 ```
 
 ```

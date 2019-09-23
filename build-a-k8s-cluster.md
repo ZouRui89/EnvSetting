@@ -341,7 +341,7 @@ export PATH=/root/local/bin:$PATH
 kubectl config set-cluster kubernetes \
   --certificate-authority=/etc/kubernetes/ssl/ca.pem \
   --embed-certs=true \
-  --server=https://10.128.0.25:6443
+  --server=https://10.128.0.25:10285
 
 # 设置客户端认证参数
 kubectl config set-credentials admin \
@@ -374,7 +374,7 @@ mv token.csv /etc/kubernetes/
 kubectl config set-cluster kubernetes \
   --certificate-authority=/etc/kubernetes/ssl/ca.pem \
   --embed-certs=true \
-  --server=https://10.128.0.25:6443 \
+  --server=https://10.128.0.25:10285 \
   --kubeconfig=bootstrap.kubeconfig
 
 # 设置客户端认证参数
@@ -400,7 +400,7 @@ mv bootstrap.kubeconfig /etc/kubernetes/
 kubectl config set-cluster kubernetes \
   --certificate-authority=/etc/kubernetes/ssl/ca.pem \
   --embed-certs=true \
-  --server=https://10.128.0.25:6443 \
+  --server=https://10.128.0.25:10285 \
   --kubeconfig=kube-proxy.kubeconfig
 
 # 设置客户端认证参数

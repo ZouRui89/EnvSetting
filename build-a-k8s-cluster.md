@@ -122,7 +122,7 @@ cat > kubernetes-csr.json << EOF
    "CN": "kubernetes",
    "hosts": [
       "127.0.0.1",
-      "10.128.0.25",
+      "10.128.0.26",
       "10.254.0.1",
       "kubernetes",
       "kubernetes.default",
@@ -237,10 +237,10 @@ ExecStart=/usr/local/bin/etcd \\
   --peer-key-file=/etc/kubernetes/ssl/kubernetes-key.pem \\
   --trusted-ca-file=/etc/kubernetes/ssl/ca.pem \\
   --peer-trusted-ca-file=/etc/kubernetes/ssl/ca.pem \\
-  --initial-advertise-peer-urls https://10.128.0.25:2380 \\
-  --listen-peer-urls https://10.128.0.25:2380 \\
-  --listen-client-urls https://10.128.0.25:2379,http://127.0.0.1:2379 \\
-  --advertise-client-urls https://10.128.0.25:2379 \\
+  --initial-advertise-peer-urls https://10.128.0.26:2380 \\
+  --listen-peer-urls https://10.128.0.26:2380 \\
+  --listen-client-urls https://10.128.0.26:2379,http://127.0.0.1:2379 \\
+  --advertise-client-urls https://10.128.0.26:2379 \\
   --initial-cluster-state new \\
   --data-dir=/var/lib/etcd
 Restart=on-failure
@@ -277,13 +277,13 @@ sudo cp flannel/{flanneld,mk-docker-opts.sh} /usr/local/bin
 ```
 
 ```
-etcdctl --endpoints=https://10.128.0.25:2379 \
+etcdctl --endpoints=https://10.128.0.26:2379 \
   --ca-file=/etc/kubernetes/ssl/ca.pem \
   --cert-file=/etc/kubernetes/ssl/kubernetes.pem \
   --key-file=/etc/kubernetes/ssl/kubernetes-key.pem \
   mkdir /kubernetes/network
 
-etcdctl --endpoints=https://10.128.0.25:2379 \
+etcdctl --endpoints=https://10.128.0.26:2379 \
   --ca-file=/etc/kubernetes/ssl/ca.pem \
   --cert-file=/etc/kubernetes/ssl/kubernetes.pem \
   --key-file=/etc/kubernetes/ssl/kubernetes-key.pem \
@@ -306,7 +306,7 @@ ExecStart=/usr/local/bin/flanneld \\
   -etcd-cafile=/etc/kubernetes/ssl/ca.pem \\
   -etcd-certfile=/etc/kubernetes/ssl/kubernetes.pem \\
   -etcd-keyfile=/etc/kubernetes/ssl/kubernetes-key.pem \\
-  -etcd-endpoints=https://10.128.0.25:2379 \\
+  -etcd-endpoints=https://10.128.0.26:2379 \\
   -etcd-prefix=/kubernetes/network
 ExecStartPost=/usr/local/bin/mk-docker-opts.sh -k DOCKER_NETWORK_OPTIONS -d /run/flannel/docker
 Restart=on-failure
@@ -341,7 +341,7 @@ export PATH=/root/local/bin:$PATH
 kubectl config set-cluster kubernetes \
   --certificate-authority=/etc/kubernetes/ssl/ca.pem \
   --embed-certs=true \
-  --server=https://10.128.0.25:10285
+  --server=https://10.128.0.26:10285
 
 # 设置客户端认证参数
 kubectl config set-credentials admin \
@@ -374,7 +374,7 @@ mv token.csv /etc/kubernetes/
 kubectl config set-cluster kubernetes \
   --certificate-authority=/etc/kubernetes/ssl/ca.pem \
   --embed-certs=true \
-  --server=https://10.128.0.25:10285 \
+  --server=https://10.128.0.26:10285 \
   --kubeconfig=bootstrap.kubeconfig
 
 # 设置客户端认证参数
@@ -400,7 +400,7 @@ mv bootstrap.kubeconfig /etc/kubernetes/
 kubectl config set-cluster kubernetes \
   --certificate-authority=/etc/kubernetes/ssl/ca.pem \
   --embed-certs=true \
-  --server=https://10.128.0.25:10285 \
+  --server=https://10.128.0.26:10285 \
   --kubeconfig=kube-proxy.kubeconfig
 
 # 设置客户端认证参数
@@ -441,8 +441,8 @@ After=etcd.service
 ExecStart=/usr/local/bin/kube-apiserver \\
   --logtostderr=true \\
   --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota,NodeRestriction \\
-  --advertise-address=10.128.0.25 \\
-  --insecure-bind-address=10.128.0.25 \\
+  --advertise-address=10.128.0.26 \\
+  --insecure-bind-address=10.128.0.26 \\
   --bind-address=0.0.0.0 \\
   --insecure-port=6443 \\
   --secure-port=10285 \\
@@ -460,7 +460,7 @@ ExecStart=/usr/local/bin/kube-apiserver \\
   --etcd-cafile=/etc/kubernetes/ssl/ca.pem \\
   --etcd-certfile=/etc/kubernetes/ssl/kubernetes.pem \\
   --etcd-keyfile=/etc/kubernetes/ssl/kubernetes-key.pem \\
-  --etcd-servers=https://10.128.0.25:2379 \\
+  --etcd-servers=https://10.128.0.26:2379 \\
   --enable-swagger-ui=true \\
   --allow-privileged=true \\
   --apiserver-count=3 \\
@@ -498,7 +498,7 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 ExecStart=/usr/local/bin/kube-controller-manager \\
   --logtostderr=true  \\
   --address=127.0.0.1 \\
-  --master=http://10.128.0.25:6443 \\ 
+  --master=http://10.128.0.26:6443 \\ 
   --port=10252 \\
   --allocate-node-cidrs=true \\
   --service-cluster-ip-range=10.254.0.0/16 \\
@@ -537,7 +537,7 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 ExecStart=/usr/local/bin/kube-scheduler \\
   --logtostderr=true \\
   --address=127.0.0.1 \\
-  --master=http://10.128.0.25:6443 \\
+  --master=http://10.128.0.26:6443 \\
   --port=10251 \\
   --leader-elect=true \\
   --v=2
@@ -623,8 +623,8 @@ Requires=docker.service
 [Service]
 WorkingDirectory=/var/lib/kubelet
 ExecStart=/usr/local/bin/kubelet \\
-  --address=10.128.0.25 \\
-  --hostname-override=10.128.0.25 \\
+  --address=10.128.0.26 \\
+  --hostname-override=10.128.0.26 \\
   --pod-infra-container-image=registry.access.redhat.com/rhel7/pod-infrastructure:latest \\
   --experimental-bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig \\
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \\
@@ -682,8 +682,8 @@ After=network.target
 [Service]
 WorkingDirectory=/var/lib/kube-proxy
 ExecStart=/usr/local/bin/kube-proxy \\
-  --bind-address=10.128.0.25 \\
-  --hostname-override=10.128.0.25 \\
+  --bind-address=10.128.0.26 \\
+  --hostname-override=10.128.0.26 \\
   --cluster-cidr=10.254.0.0/16 \\
   --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig \\
   --logtostderr=true \\

@@ -3,8 +3,8 @@
 yum install wget git gcc -y
 yum install -y epel-release
 yum install -y yum-utils device-mapper-persistent-data lvm2 net-tools conntrack-tools wget
-wget https://storage.googleapis.com/golang/go1.12.7.linux-amd64.tar.gz
-tar -xzf go1.12.7.linux-amd64.tar.gz -C /usr/local
+wget https://storage.googleapis.com/golang/go1.16.1.linux-amd64.tar.gz
+tar -xzf go1.16.1.linux-amd64.tar.gz -C /usr/local
 sed -i '11i\export GOROOT=/usr/local/go\nexport GOBIN=$GOROOT/bin\nexport PATH=$PATH:$GOBIN\nexport GOPATH=/home/gopath\n' /etc/profile
 source /etc/profile
 go version
